@@ -1,0 +1,21 @@
+int x = 5;
+double y = 12.9;
+string text = "Text";
+boolean b = 1;
+
+for (i = 0; i < 5; i = i + 1) {
+
+}
+
+if (x < 10 && x > 5) {
+} else {
+}
+
+if (y <= 3.14 || y >= 2.0) {
+} else {
+}
+
+while (x < 20) {
+}
+
+return x;
