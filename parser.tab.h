@@ -65,22 +65,20 @@
      T_INT = 281,
      T_DOUBLE = 282,
      T_BOOLEAN = 283,
-     T_TRUE = 284,
-     T_FALSE = 285,
-     T_ID = 286,
-     T_STRING = 287,
-     T_LEFT_PAREN = 288,
-     T_RIGHT_PAREN = 289,
-     T_LEFT_BRACE = 290,
-     T_RIGHT_BRACE = 291,
-     T_BOOLEAN_DECL = 292,
-     T_T = 293,
-     T_F = 294,
-     T_GREATER_EQ = 295,
-     T_GREATER = 296,
-     T_LESS_EQ = 297,
-     T_LESS = 298,
-     UMINUS = 299
+     T_ID = 284,
+     T_STRING = 285,
+     T_LEFT_PAREN = 286,
+     T_RIGHT_PAREN = 287,
+     T_LEFT_BRACE = 288,
+     T_RIGHT_BRACE = 289,
+     T_BOOLEAN_DECL = 290,
+     T_T = 291,
+     T_F = 292,
+     T_GREATER_EQ = 293,
+     T_GREATER = 294,
+     T_LESS_EQ = 295,
+     T_LESS = 296,
+     UMINUS = 297
    };
 #endif
 /* Tokens.  */
@@ -110,29 +108,27 @@
 #define T_INT 281
 #define T_DOUBLE 282
 #define T_BOOLEAN 283
-#define T_TRUE 284
-#define T_FALSE 285
-#define T_ID 286
-#define T_STRING 287
-#define T_LEFT_PAREN 288
-#define T_RIGHT_PAREN 289
-#define T_LEFT_BRACE 290
-#define T_RIGHT_BRACE 291
-#define T_BOOLEAN_DECL 292
-#define T_T 293
-#define T_F 294
-#define T_GREATER_EQ 295
-#define T_GREATER 296
-#define T_LESS_EQ 297
-#define T_LESS 298
-#define UMINUS 299
+#define T_ID 284
+#define T_STRING 285
+#define T_LEFT_PAREN 286
+#define T_RIGHT_PAREN 287
+#define T_LEFT_BRACE 288
+#define T_RIGHT_BRACE 289
+#define T_BOOLEAN_DECL 290
+#define T_T 291
+#define T_F 292
+#define T_GREATER_EQ 293
+#define T_GREATER 294
+#define T_LESS_EQ 295
+#define T_LESS 296
+#define UMINUS 297
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "parser.y"
+#line 55 "parser.y"
 {
     int int_value;
     double double_value;
@@ -140,7 +136,7 @@ typedef union YYSTYPE
     char* string_value;
 }
 /* Line 1529 of yacc.c.  */
-#line 144 "parser.tab.h"
+#line 140 "parser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -1,13 +1,22 @@
 int x = 5;
+a = 7+3;
 double y = 12.9;
+int hex = 0X12aE;
+int hex0 = 012;
+double y = 12.E+2;
+double z = 12.2E+2;
 string text = "Text";
-boolean b = 1;
+int rez = 2;
+rez = rez + 33;
+rez = rez - 5;
+boolean F= 1;
 
 for (i = 0; i < 5; i = i + 1) {
 
 }
 
 if (x < 10 && x > 5) {
+    n = 100 / 5;
 } else {
 }
 
@@ -19,3 +28,4 @@ while (x < 20) {
 }
 
 return x;
+m = 2.5 + 4.1;
