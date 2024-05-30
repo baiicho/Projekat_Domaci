@@ -5,11 +5,9 @@ extern int line;
 %}
 
 
+
 %%
 
-
-"true"                              { return T_T; }
-"false"                             { return T_F; }
 while                               { return T_WHILE; }
 for                                 { return T_FOR; }
 if                                  { return T_IF; }
@@ -17,14 +15,18 @@ else                                { return T_ELSE; }
 int                                 { return  T_INT_DECL; }
 double                              { return  T_DOUBLE_DECL; }
 boolean                             { return T_BOOL_DECL; }
-'true'                              { return T_TRUE; }
-'false'                             { return T_FALSE; }
 string                              { return  T_STRING_DECL; }
+"true"                              { return T_T; }
+"false"                             { return T_F; }
 return                              { return  T_RETURN; }
 
-\"([^\"\\]|\\.)*\"                  { yylval.string_value = strdup(yytext); return T_STRING; }
+\"([^\"\\]|\\.)*\"                  { yylval.string_value = strdup(yytext + 1); yylval.string_value[strlen(yylval.string_value) - 1] = '\0'; return T_STRING; }
 [0-9]+                              { yylval.int_value = atoi(yytext); return T_INT; }
+0[xX][0-9a-fA-F]+                   { yylval.int_value = strtol(yytext, NULL, 16); return T_INT; }
+0[xX][0-9a-fA-F]+[uU]?[lL]?         { yylval.int_value = strtol(yytext, NULL, 16); return T_INT; }
 [0-9]+[eE][+-]?[0-9]+               { yylval.double_value = atof(yytext); return T_DOUBLE; }
+[0-9]+(\.[0-9]*([eE][+-]?[0-9]+)?|\.[0-9]+([eE][+-]?[0-9]+)?|\.[eE][+-]?[0-9]+|[eE][+-]?[0-9]+)    { yylval.double_value = atof(yytext); return T_DOUBLE; }
+
 [0-9]*\.[0-9]+([eE][+-]?[0-9]+)?    { yylval.double_value = atof(yytext); return T_DOUBLE; }
 [a-zA-Z][a-zA-Z0-9_]{0,30}          { 
                                        if(strlen(yytext) <= 31) {
