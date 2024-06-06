@@ -9,39 +9,6 @@ int line;
 char *yytext;
 void yyerror(const char *msg);
 
-typedef struct {
-    char* id;
-    double value;
-} Variable;
-
-Variable symbol_table[50];
-int var_count = 0;
-
-int find_variable(const char* id) {
-    for (int i = 0; i < var_count; ++i) {
-        if (strcmp(symbol_table[i].id, id) == 0) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-void set_variable(const char* id, double value) {
-    int index = find_variable(id);
-    if (index == -1) {
-        symbol_table[var_count].id = strdup(id);
-        symbol_table[var_count].value = value;
-        var_count++;
-    } else {
-        symbol_table[index].value = value;
-    }
-}
-
-double get_variable(const char* id) {
-    int index = find_variable(id);
-    return (index == -1) ? 0.0 : symbol_table[index].value;
-}
-
 void print_value(double value) {
     if (value == (int)value) {
         printf("%d\n", (int)value);
@@ -91,17 +58,14 @@ S: S stat { }
 ;
 
 stat: T_ID T_EQUAL exp T_SC {
-        set_variable($1, $3);
         printf("%s = ", $1);
         print_value($3);
     }
     | T_INT_DECL T_ID T_EQUAL exp T_SC {
-        set_variable($2, $4);
         printf("Var decl %s with val ", $2);
         print_value($4);
     }
     | T_DOUBLE_DECL T_ID T_EQUAL exp T_SC {
-        set_variable($2, $4);
         printf("Var decl %s with val ", $2);
         print_value($4);
     }
@@ -138,7 +102,8 @@ stat: T_ID T_EQUAL exp T_SC {
 ;
 
 exp: T_ID {
-        $$ = get_variable($1);
+        printf("Using variable %s\n", $1);
+        $$ = 0.0; // Placeholder value
     }
     | T_INT {
         $$ = $1;

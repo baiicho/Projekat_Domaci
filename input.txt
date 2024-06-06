@@ -9,7 +9,7 @@ string text = "Text";
 int rez = 2;
 rez = rez + 33;
 rez = rez - 5;
-boolean F= 1;
+boolean F = true;
 
 for (i = 0; i < 5; i = i + 1) {
 
