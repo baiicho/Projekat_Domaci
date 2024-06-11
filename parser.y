@@ -3,19 +3,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "AST.h"  // Uključujemo AST.h da bismo definisali ASTNode
 
 int yylex();
 int line;
 char *yytext;
 void yyerror(const char *msg);
 
-void print_value(double value) {
-    if (value == (int)value) {
-        printf("%d\n", (int)value);
-    } else {
-        printf("%.2f\n", value);
-    }
-}
+ASTNode* root = NULL;
 
 %}
 
@@ -24,6 +19,7 @@ void print_value(double value) {
     double double_value;
     int bool_value;
     char* string_value;
+    struct ASTNode* node;
 }
 
 %token T_IF T_ELSE T_WHILE T_FOR T_RETURN
@@ -48,129 +44,51 @@ void print_value(double value) {
 %left T_MULT T_DIV T_MODULO
 %right T_NOT UMINUS
 
-%type <double_value> exp
-%type <string_value> stat
+%type <node> exp stat S
 
 %%
 
-S: S stat { }
-    |
+S: S stat { $$ = create_node("S", NULL, $1, $2, NULL); root = $$; }
+    | { $$ = NULL; }
 ;
 
-stat: T_ID T_EQUAL exp T_SC {
-        printf("%s = ", $1);
-        print_value($3);
-    }
-    | T_INT_DECL T_ID T_EQUAL exp T_SC {
-        printf("Var decl %s with val ", $2);
-        print_value($4);
-    }
-    | T_DOUBLE_DECL T_ID T_EQUAL exp T_SC {
-        printf("Var decl %s with val ", $2);
-        print_value($4);
-    }
-    | T_BOOL_DECL T_ID T_EQUAL exp T_SC {
-        printf("Var decl %s with val %s\n", $2, $4 == 1.0 ? "true" : "false");
-    }
-    | T_STRING_DECL T_ID T_EQUAL T_STRING T_SC {
-        printf("Var decl %s with str \"%s\"\n", $2, $4);
-    }
-    | T_WHILE T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE {
-        printf("WHILE loop\n");
-    }
-    | T_FOR T_LEFT_PAREN exp T_SC exp T_SC exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE {
-        printf("FOR loop\n");
-    }
-    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN stat {
-        printf("IF condition\n");
-    }
-    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE {
-        printf("IF condition\n");
-    }
-    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE T_ELSE T_LEFT_BRACE S T_RIGHT_BRACE {
-        printf("IF ELSE condition\n");
-    }
-    | T_RETURN exp T_SC {
-        printf("RETURN\n");
-    }
-    | T_BOOLEAN_DECL T_ID T_EQUAL T_T T_SC {
-        printf("Deklaracija var %s sa true\n", $2);
-    }
-    | T_BOOLEAN_DECL T_ID T_EQUAL T_F T_SC {
-        printf("Deklaracija var %s sa false\n", $2);
-    }
+stat: T_ID T_EQUAL exp T_SC { $$ = create_node("assign", $1, $3, NULL, NULL); }
+    | T_INT_DECL T_ID T_EQUAL exp T_SC { $$ = create_node("int_decl", $2, $4, NULL, NULL); }
+    | T_DOUBLE_DECL T_ID T_EQUAL exp T_SC { $$ = create_node("double_decl", $2, $4, NULL, NULL); }
+    | T_BOOL_DECL T_ID T_EQUAL exp T_SC { $$ = create_node("bool_decl", $2, $4, NULL, NULL); }
+    | T_STRING_DECL T_ID T_EQUAL T_STRING T_SC { $$ = create_node("string_decl", $2, create_node("string", $4, NULL, NULL, NULL), NULL, NULL); }
+    | T_WHILE T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE { $$ = create_node("while", NULL, $3, $6, NULL); }
+    | T_FOR T_LEFT_PAREN exp T_SC exp T_SC exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE { $$ = create_node("for", NULL, $3, create_node("for_mid", NULL, $5, $7, NULL), $10); }
+    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN stat { $$ = create_node("if", NULL, $3, $5, NULL); }
+    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE { $$ = create_node("if", NULL, $3, $6, NULL); }
+    | T_IF T_LEFT_PAREN exp T_RIGHT_PAREN T_LEFT_BRACE S T_RIGHT_BRACE T_ELSE T_LEFT_BRACE S T_RIGHT_BRACE { $$ = create_node("if_else", NULL, $3, $6, $10); }
+    | T_RETURN exp T_SC { $$ = create_node("return", NULL, $2, NULL, NULL); }
+    | T_BOOLEAN_DECL T_ID T_EQUAL T_T T_SC { $$ = create_node("bool_decl", $2, create_node("bool", "true", NULL, NULL, NULL), NULL, NULL); }
+    | T_BOOLEAN_DECL T_ID T_EQUAL T_F T_SC { $$ = create_node("bool_decl", $2, create_node("bool", "false", NULL, NULL, NULL), NULL, NULL); }
 ;
 
-exp: T_ID {
-        printf("Using variable %s\n", $1);
-        $$ = 0.0; // Placeholder value
-    }
-    | T_INT {
-        $$ = $1;
-    }
-    | T_DOUBLE {
-        $$ = $1;
-    }
-    | T_BOOLEAN {
-        $$ = $1;
-    }
-    | T_T {
-        $$ = 1.0;
-    }
-    | T_F {
-        $$ = 0.0;
-    }
-    | T_STRING {
-        $$ = 0.0;
-    }
-    | exp T_PLUS exp {
-        $$ = $1 + $3;
-    }
-    | exp T_MINUS exp {
-        $$ = $1 - $3;
-    }
-    | exp T_MULT exp {
-        $$ = $1 * $3;
-    }
-    | exp T_DIV exp {
-        $$ = $1 / $3;
-    }
-    | exp T_MODULO exp {
-        $$ = (int)$1 % (int)$3;
-    }
-    | exp T_LESS exp {
-        $$ = ($1 < $3) ? 1.0 : 0.0;
-    }
-    | exp T_GREATER exp {
-        $$ = ($1 > $3) ? 1.0 : 0.0;
-    }
-    | exp T_LESS_EQ exp {
-        $$ = ($1 <= $3) ? 1.0 : 0.0;
-    }
-    | exp T_GREATER_EQ exp {
-        $$ = ($1 >= $3) ? 1.0 : 0.0;
-    }
-    | exp T_EQUAL exp {
-        $$ = ($1 == $3) ? 1.0 : 0.0;
-    }
-    | exp T_EQUAL_EQ exp {
-        $$ = ($1 == $3) ? 1.0 : 0.0;
-    }
-    | exp T_NOT_EQUAL exp {
-        $$ = ($1 != $3) ? 1.0 : 0.0;
-    }
-    | exp T_LOGICAL_AND exp {
-        $$ = ($1 && $3) ? 1.0 : 0.0;
-    }
-    | exp T_LOGICAL_OR exp {
-        $$ = ($1 || $3) ? 1.0 : 0.0;
-    }
-    | T_NOT exp %prec UMINUS {
-        $$ = !$2;
-    }
-    | T_LEFT_PAREN exp T_RIGHT_PAREN {
-        $$ = $2;
-    }
+exp: T_ID { $$ = create_node("id", $1, NULL, NULL, NULL); }
+    | T_INT { char buffer[20]; sprintf(buffer, "%d", $1); $$ = create_node("int", buffer, NULL, NULL, NULL); }
+    | T_DOUBLE { char buffer[20]; sprintf(buffer, "%f", $1); $$ = create_node("double", buffer, NULL, NULL, NULL); }
+    | T_T { $$ = create_node("bool", "true", NULL, NULL, NULL); }
+    | T_F { $$ = create_node("bool", "false", NULL, NULL, NULL); }
+    | T_STRING { $$ = create_node("string", $1, NULL, NULL, NULL); }
+    | exp T_PLUS exp { $$ = create_node("plus", NULL, $1, $3, NULL); }
+    | exp T_MINUS exp { $$ = create_node("minus", NULL, $1, $3, NULL); }
+    | exp T_MULT exp { $$ = create_node("mult", NULL, $1, $3, NULL); }
+    | exp T_DIV exp { $$ = create_node("div", NULL, $1, $3, NULL); }
+    | exp T_MODULO exp { $$ = create_node("mod", NULL, $1, $3, NULL); }
+    | exp T_LESS exp { $$ = create_node("less", NULL, $1, $3, NULL); }
+    | exp T_GREATER exp { $$ = create_node("greater", NULL, $1, $3, NULL); }
+    | exp T_LESS_EQ exp { $$ = create_node("less_eq", NULL, $1, $3, NULL); }
+    | exp T_GREATER_EQ exp { $$ = create_node("greater_eq", NULL, $1, $3, NULL); }
+    | exp T_EQUAL exp { $$ = create_node("equal", NULL, $1, $3, NULL); }
+    | exp T_EQUAL_EQ exp { $$ = create_node("equal_eq", NULL, $1, $3, NULL); }
+    | exp T_NOT_EQUAL exp { $$ = create_node("not_equal", NULL, $1, $3, NULL); }
+    | exp T_LOGICAL_AND exp { $$ = create_node("logical_and", NULL, $1, $3, NULL); }
+    | exp T_LOGICAL_OR exp { $$ = create_node("logical_or", NULL, $1, $3, NULL); }
+    | T_NOT exp %prec UMINUS { $$ = create_node("not", NULL, $2, NULL, NULL); }
+    | T_LEFT_PAREN exp T_RIGHT_PAREN { $$ = $2; }
 ;
 
 %%
@@ -184,6 +102,7 @@ int main() {
     int res = yyparse();
     if (res == 0) {
         printf("Valid input.\n");
+        print_ast(root, 0);
     } else {
         printf("Not valid input.\n");
     }

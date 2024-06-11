@@ -7,8 +7,7 @@ double y = 12.E+2;
 double z = 12.2E+2;
 string text = "Text";
 int rez = 2;
-rez = rez + 33;
-rez = rez - 5;
+rez = rez - 33;
 boolean F = true;
 
 for (i = 0; i < 5; i = i + 1) {
@@ -29,3 +28,4 @@ while (x < 20) {
 
 return x;
 m = 2.5 + 4.1;
+a = 6.0 - 9.7;
